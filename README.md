@@ -20,7 +20,7 @@ from model_transformer import Transformer, Field
 class SampleTransformer(Transformer):
     name = Field("name") # This field will extract name from input data.
 
-    def get_age(self, row: dict) -> int
+    def get_age(self, row: dict) -> int:
         birth = datetime.fromisoformat(row.get("birth"))
 
         diff = datetime.now() - birth
