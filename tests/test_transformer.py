@@ -1,4 +1,4 @@
-from model_transformer import CombineTransformers, Transformer, Field
+from model_transformer import CombineTransformers, Field, Transformer
 
 
 def test_field():

@@ -1,6 +1,8 @@
-from typing import Any
+from functools import partial
+from typing import Any, Generic, List, TypeVar
 
-from functools import wraps, partial
+_InputDict = TypeVar("_InputDict", bound=dict)
+_OutputDict = TypeVar("_OutputDict", bound=dict)
 
 
 class BaseField:
@@ -23,7 +25,7 @@ class Field(BaseField):
         return data
 
 
-class Transformer:
+class Transformer(Generic[_InputDict, _OutputDict]):
     """Schema is a base class for all schemas defined.
 
     It provides a way to define a schema for a given data source.
@@ -49,10 +51,10 @@ class Transformer:
     def field_names(self):
         return self.fields.keys()
 
-    def transform_row(self, row: dict) -> dict:
+    def transform_row(self, row: _InputDict) -> _OutputDict:
         return {k: field(row) for k, field in self.fields.items()}
 
-    def transform(self, rows: list[dict]) -> Any:
+    def transform(self, rows: list[_InputDict]) -> List[_OutputDict]:
         return [self.transform_row(row) for row in rows]
 
 
