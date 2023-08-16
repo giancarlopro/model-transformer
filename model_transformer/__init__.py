@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Dict, Generic, List, TypeVar
 
 _InputDict = TypeVar("_InputDict", bound=dict)
 _OutputDict = TypeVar("_OutputDict", bound=dict)
@@ -54,7 +54,7 @@ class Transformer(Generic[_InputDict, _OutputDict]):
     def transform_row(self, row: _InputDict) -> _OutputDict:
         return {k: field(row) for k, field in self.fields.items()}
 
-    def transform(self, rows: list[_InputDict]) -> List[_OutputDict]:
+    def transform(self, rows: List[_InputDict]) -> List[_OutputDict]:
         return [self.transform_row(row) for row in rows]
 
 
@@ -64,7 +64,7 @@ class CombineTransformers:
 
         self.transformers = transformers
 
-    def transform(self, rows: list[dict]) -> Any:
+    def transform(self, rows: List[Dict]) -> Any:
         return {
             name: transformer.transform(rows)
             for name, transformer in self.transformers.items()
