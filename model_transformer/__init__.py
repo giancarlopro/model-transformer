@@ -31,6 +31,14 @@ class Transformer(Generic[_InputDict, _OutputDict]):
     It provides a way to define a schema for a given data source.
     """
 
+
+    def __getattr__(self, name: str) -> Any:
+        field = self.fields.get(name)
+
+        if field is None:
+            raise AttributeError(f"{name} is not a valid field")
+
+        return field
     @property
     def fields(self):
         defined_fields = {
