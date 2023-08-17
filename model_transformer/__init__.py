@@ -34,6 +34,8 @@ class Transformer(Generic[_InputDict, _OutputDict]):
     def __init__(self):
         self._multi_field_results = {}
 
+        self.meta = getattr(self.__class__, "Meta", None)
+
     def __getattr__(self, name: str) -> Any:
         field = self.fields.get(name)
 
@@ -76,12 +78,17 @@ class Transformer(Generic[_InputDict, _OutputDict]):
     def fields(self):
         found_fields = {}
 
+        rename_map = getattr(self.meta, "rename_fields", {})
+
+        def rename(key):
+            return rename_map.get(key, key)
+
         for base in self.__class__.mro()[::-1]:
             for key, value in vars(base).items():
                 if isinstance(value, BaseField):
-                    found_fields[key] = value
+                    found_fields[rename(key)] = value
                 elif key.startswith("get_"):
-                    found_fields[key[4:]] = partial(value, self)
+                    found_fields[rename(key[4:])] = partial(value, self)
 
         return self._split_multi_fields(found_fields)
 

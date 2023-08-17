@@ -128,3 +128,21 @@ def test_composition_can_override():
 
     assert first.fields["name"] != override.fields["name"]
     assert override.fields["name"].name == "fullname"
+
+
+def test_field_remapping():
+    class FirstTransformer(Transformer):
+        age = Field("age")
+        name = Field("name")
+
+    class RenameTransformer(FirstTransformer):
+        class Meta:
+            rename_fields = {"name": "fullname"}
+
+    t = RenameTransformer()
+
+    data = t.transform_row({"age": 20, "name": "John"})
+
+    assert data["age"] == 20
+    assert data["fullname"] == "John"
+    assert "name" not in data
