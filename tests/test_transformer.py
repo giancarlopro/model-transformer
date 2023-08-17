@@ -94,3 +94,37 @@ def test_multi_field_works_for_different_rows():
         assert data["age"] == row["age__name"][0]
         assert data["name"] == row["age__name"][1]
         assert data["name"] == row["age__name"][1]
+
+
+def test_transformer_composition():
+    class FirstTransformer(Transformer):
+        age = Field("age")
+        name = Field("name")
+
+    class SecondTransformer(FirstTransformer):
+        city = Field("city")
+        state = Field("state")
+
+    first = FirstTransformer()
+    second = SecondTransformer()
+
+    for field in ["age", "name"]:
+        assert field in first.field_names
+
+    for field in ["age", "name", "city", "state"]:
+        assert field in second.field_names
+
+
+def test_composition_can_override():
+    class FirstTransformer(Transformer):
+        age = Field("age")
+        name = Field("name")
+
+    class OverrideNameTransformer(FirstTransformer):
+        name = Field("fullname")
+
+    first = FirstTransformer()
+    override = OverrideNameTransformer()
+
+    assert first.fields["name"] != override.fields["name"]
+    assert override.fields["name"].name == "fullname"

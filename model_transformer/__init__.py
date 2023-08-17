@@ -74,22 +74,16 @@ class Transformer(Generic[_InputDict, _OutputDict]):
 
     @property
     def fields(self):
-        defined_fields = {
-            key: value
-            for key, value in vars(self.__class__).items()
-            if isinstance(value, BaseField)
-        }
+        found_fields = {}
 
-        dynamic_fields = {
-            key[4:]: partial(value, self)
-            for key, value in vars(self.__class__).items()
-            if key.startswith("get_") and not isinstance(value, BaseField)
-        }
+        for base in self.__class__.mro()[::-1]:
+            for key, value in vars(base).items():
+                if isinstance(value, BaseField):
+                    found_fields[key] = value
+                elif key.startswith("get_"):
+                    found_fields[key[4:]] = partial(value, self)
 
-        return {
-            **self._split_multi_fields(defined_fields),
-            **self._split_multi_fields(dynamic_fields),
-        }
+        return self._split_multi_fields(found_fields)
 
     @property
     def field_names(self):
